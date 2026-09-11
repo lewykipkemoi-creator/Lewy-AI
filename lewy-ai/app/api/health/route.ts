@@ -1,7 +1,9 @@
+import { NextResponse } from "next/server";
+
 export async function GET() {
-  return Response.json({
+  return NextResponse.json({
     ok: true,
-    service: "Lewy AI",
+    service: "lewy-ai",
     timestamp: new Date().toISOString()
   });
 }

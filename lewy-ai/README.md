@@ -1,41 +1,33 @@
 # Lewy AI
 
-**Never lose a customer because you replied too late.**
+Lewy AI is an AI-powered customer response and lead recovery platform.
 
-Lewy AI is an AI-powered customer response and lead-recovery SaaS foundation. It is designed to connect business conversations, let Lewy answer routine questions, qualify leads, schedule follow-ups, and escalate important conversations to humans.
+## Core product
 
-## Current MVP
+- Unified customer conversations
+- AI customer responses
+- Lead qualification
+- Follow-up automation
+- Customer profiles
+- Appointment workflows
+- Revenue-at-risk intelligence
+- Human handoff
 
-- Modern SaaS dashboard
-- Conversation inbox
-- AI chat powered by Gemini
-- Lead scoring
-- Revenue-at-risk overview
-- Follow-up queue
-- Channel connection placeholders
-- Business knowledge panel
-- Provider abstraction so OpenAI can be added later
-- Vercel-ready Next.js app
+## Stack
 
-## Run locally
+- Next.js
+- React
+- TypeScript
+- Supabase Auth
+- Gemini AI
+- Vercel
 
-```bash
-npm install
-cp .env.example .env.local
-# Add GEMINI_API_KEY to .env.local
-npm run dev
-```
+## Environment variables
 
-Open http://localhost:3000.
+Create the following variables in the deployment environment:
 
-## Deploy to Vercel
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+GEMINI_API_KEY=
 
-Push this repository to GitHub, import it into Vercel, and add:
-
-`GEMINI_API_KEY`
-
-Optionally set `GEMINI_MODEL`.
-
-## Important
-
-The current UI includes integration controls and a working Gemini endpoint, but production OAuth/webhook integrations for WhatsApp, Gmail, Instagram, Facebook, Telegram and Google Calendar still need to be connected to their official APIs. Do not use unofficial WhatsApp automation.
+The application deliberately does not create fake customer, lead, conversation or revenue records.
