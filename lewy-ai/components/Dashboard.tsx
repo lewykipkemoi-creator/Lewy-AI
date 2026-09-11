@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import {
   Activity, ArrowUpRight, Bell, Bot, CalendarDays, CheckCircle2,
   ChevronRight, Clock3, Facebook, Gauge, Globe2, Instagram, Mail,
-  Menu, MessageCircle, Plus, Search, Send, Settings, Sparkles, Telegram,
+  Menu, MessageCircle, Plus, Search, Send, Settings, Sparkles,
   TrendingUp, Users, X
 } from "lucide-react";
 
