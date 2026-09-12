@@ -76,9 +76,11 @@ export default function DashboardPage() {
 
         .main { margin-left:250px; width:calc(100% - 250px); min-width:0; }
         .topbar { height:72px; background:white; border-bottom:1px solid #eaecf0; display:flex; align-items:center; justify-content:space-between; padding:0 32px; position:sticky; top:0; z-index:30; }
-        .top-left h1 { margin:0; font-size:19px; letter-spacing:-.4px; color:#101828; }
-        .top-left p { margin:4px 0 0; font-size:12px; color:#667085; }
-        .top-actions { display:flex; align-items:center; gap:12px; }
+        .header-left { display:flex; align-items:center; min-width:0; flex:1; }
+        .top-left { min-width:0; }
+        .top-left h1 { margin:0; font-size:19px; letter-spacing:-.4px; color:#101828; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .top-left p { margin:4px 0 0; font-size:12px; color:#667085; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .top-actions { display:flex; align-items:center; gap:10px; flex:none; }
         .icon-btn { width:38px; height:38px; border:1px solid #eaecf0; background:white; border-radius:10px; display:grid; place-items:center; cursor:pointer; color:#667085; font-size:16px; }
         .avatar { width:36px; height:36px; border-radius:50%; background:#ede9fe; color:#6d28d9; display:grid; place-items:center; font-size:12px; font-weight:800; }
 
@@ -158,7 +160,7 @@ export default function DashboardPage() {
         .follow-main span { color:#667085; font-size:9px; }
         .follow-time { font-size:9px; color:#98a2b3; }
 
-        .mobile-menu { display:none; }
+        .mobile-menu { display:none; border:1px solid #eaecf0; background:white; color:#344054; cursor:pointer; }
         .mobile-overlay { display:none; }
 
         @media(max-width:1100px) {
@@ -172,10 +174,20 @@ export default function DashboardPage() {
           .sidebar { transform:translateX(-100%); transition:.22s ease; box-shadow:15px 0 35px rgba(16,24,40,.18); }
           .sidebar.open { transform:translateX(0); }
           .main { margin-left:0; width:100%; }
-          .topbar { padding:0 16px; height:64px; }
-          .top-left h1 { font-size:16px; }
+          .topbar { padding:0 12px; height:66px; gap:8px; }
+          .header-left { min-width:0; }
+          .top-left h1 { font-size:15px; }
           .top-left p { display:none; }
-          .mobile-menu { display:grid; width:36px; height:36px; border:1px solid #eaecf0; border-radius:9px; background:white; place-items:center; margin-right:9px; cursor:pointer; }
+          .mobile-menu {
+            display:grid;
+            width:36px;
+            height:36px;
+            flex:none;
+            border-radius:9px;
+            place-items:center;
+            margin-right:9px;
+            font-size:18px;
+          }
           .mobile-overlay { display:block; position:fixed; inset:0; background:rgba(16,24,40,.4); z-index:40; }
           .content { padding:18px 14px 30px; }
           .hero-card { padding:20px; }
@@ -184,7 +196,16 @@ export default function DashboardPage() {
           .stat { padding:14px; }
           .stat-value { font-size:20px; }
           .lower { grid-template-columns:1fr; }
-          .top-actions { gap:6px; }
+          .top-actions { gap:5px; }
+          .top-actions .icon-btn { width:34px; height:34px; }
+          .top-actions .avatar { width:34px; height:34px; }
+        }
+
+        @media(max-width:380px) {
+          .topbar { padding:0 9px; }
+          .top-left h1 { font-size:14px; }
+          .top-actions .icon-btn:first-child { display:none; }
+          .mobile-menu { margin-right:7px; }
         }
 
         @media(max-width:430px) {
@@ -234,8 +255,8 @@ export default function DashboardPage() {
 
       <section className="main">
         <header className="topbar">
-          <div style={{display:"flex",alignItems:"center"}}>
-            <button className="mobile-menu" onClick={() => setMobileOpen(true)}>☰</button>
+          <div className="header-left">
+            <button className="mobile-menu" onClick={() => setMobileOpen(true)} aria-label="Open navigation">☰</button>
             <div className="top-left">
               <h1>Good afternoon 👋</h1>
               <p>Here's what is happening with your business today.</p>
