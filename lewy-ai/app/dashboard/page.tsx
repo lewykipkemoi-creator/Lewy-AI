@@ -66,10 +66,10 @@ export default function DashboardPage() {
 
       <div className="welcome-card">
         <div>
-          <h2>Connect your business to Lewy</h2>
+          <h2>Your Lewy workspace is ready</h2>
           <p>
-            Your workspace is ready. Connect a customer channel and Lewy can
-            start helping you capture and respond to conversations.
+            Connect your business channels and Lewy will start bringing real
+            customer conversations, leads and follow-ups into this workspace.
           </p>
         </div>
 
@@ -106,10 +106,6 @@ export default function DashboardPage() {
           place-items: center;
           color: #374151;
           flex-shrink: 0;
-        }
-
-        .overview-card div:last-child {
-          min-width: 0;
         }
 
         .overview-card span,
@@ -158,6 +154,25 @@ export default function DashboardPage() {
           max-width: 650px;
         }
 
+        .action-link {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 11px 16px;
+          border-radius: 9px;
+          background: #111827;
+          color: white;
+          text-decoration: none;
+          font-size: 13px;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+
+        .action-link:hover {
+          opacity: 0.9;
+        }
+
         @media (max-width: 1000px) {
           .overview-grid {
             grid-template-columns: repeat(2, 1fr);
@@ -174,7 +189,7 @@ export default function DashboardPage() {
             align-items: stretch;
           }
 
-          .welcome-card .action-link {
+          .action-link {
             width: 100%;
           }
         }
