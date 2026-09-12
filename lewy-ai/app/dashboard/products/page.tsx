@@ -3,62 +3,43 @@
 import Link from "next/link";
 import { useState } from "react";
 
-type Product = { name:string; sku:string; price:string; stock:string; media:number };
+type Product = {name:string;price:string;description:string};
 
 export default function Products() {
-  const [show, setShow] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [sku, setSku] = useState("");
+  const [products,setProducts] = useState<Product[]>([]);
+  const [open,setOpen] = useState(false);
+  const [name,setName] = useState("");
+  const [price,setPrice] = useState("");
+  const [description,setDescription] = useState("");
 
   function addProduct() {
-    if (!name.trim()) return;
-    setProducts([...products,{name:name.trim(),sku:sku || "—",price:price || "0",stock:"0",media:0}]);
-    setName("");setPrice("");setSku("");setShow(false);
+    if(!name.trim()) return;
+    setProducts([...products,{name,price,description}]);
+    setName(""); setPrice(""); setDescription(""); setOpen(false);
   }
 
-  return <div className="page">
-    <style jsx global>{`
-      *{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#f6f7fb;color:#111827}a{text-decoration:none;color:inherit}
-      .header{height:72px;background:#fff;border-bottom:1px solid #e7e9ef;display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:10}.left{display:flex;align-items:center;gap:14px}.back{font-size:12px;color:#667085}.title{font-size:17px;font-weight:800}.sub{font-size:11px;color:#8991a3;margin-top:3px}.add{border:0;background:#7c3aed;color:#fff;border-radius:10px;padding:11px 15px;font-size:11px;font-weight:800;cursor:pointer}
-      .content{max-width:1200px;margin:auto;padding:30px}.hero{background:linear-gradient(115deg,#11182d,#30245b);color:#fff;border-radius:20px;padding:26px;margin-bottom:22px}.hero h1{margin:5px 0;font-size:24px}.hero p{color:#bdc3d3;font-size:12px;line-height:1.6;max-width:700px}.tag{font-size:10px;color:#a78bfa;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
-      .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:22px}.stat{background:#fff;border:1px solid #e7e9ef;border-radius:15px;padding:17px}.stat small{color:#7b8495;font-size:10px}.stat strong{display:block;font-size:22px;margin-top:7px}
-      .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.toolbar h2{font-size:15px}.search{border:1px solid #dddfe6;border-radius:9px;padding:10px 12px;background:#fff;font-size:11px;width:220px}.products{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.product{background:#fff;border:1px solid #e6e8ef;border-radius:17px;overflow:hidden}.visual{height:150px;background:linear-gradient(135deg,#f0f1f6,#e6e8ef);display:grid;place-items:center;font-size:42px;color:#a0a7b6}.details{padding:16px}.details strong{font-size:13px}.sku{font-size:10px;color:#8b93a3;margin-top:4px}.price{font-size:16px;font-weight:800;margin-top:12px}.meta{display:flex;justify-content:space-between;margin-top:10px;font-size:10px;color:#737b8c}.empty{background:#fff;border:1px dashed #d8dbe4;border-radius:17px;padding:50px 20px;text-align:center;color:#737b8c;grid-column:1/-1}.empty strong{display:block;color:#202536;font-size:14px;margin-bottom:6px}
-      .modalBg{position:fixed;inset:0;background:#0008;display:grid;place-items:center;padding:18px;z-index:30}.modal{background:#fff;border-radius:18px;padding:24px;width:100%;max-width:470px}.modal h2{margin:0 0 18px;font-size:18px}.field{margin-bottom:12px}.field label{display:block;font-size:10px;font-weight:800;margin-bottom:5px;color:#667085}.field input{width:100%;padding:11px;border:1px solid #dfe2e9;border-radius:9px;font-size:12px}.actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}.cancel{border:1px solid #ddd;background:#fff;padding:10px 14px;border-radius:9px;font-size:11px;font-weight:700}.save{border:0;background:#7c3aed;color:#fff;padding:10px 15px;border-radius:9px;font-size:11px;font-weight:800}
-      @media(max-width:800px){.content{padding:18px 14px}.products{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.header{padding:0 15px}}
-      @media(max-width:500px){.products{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.search{width:145px}.hero h1{font-size:20px}.title{font-size:15px}}
+  return <main className="page">
+    <Link href="/dashboard" className="back">← Dashboard</Link>
+    <div className="head">
+      <div><span>PRODUCTS & MEDIA</span><h1>Your products</h1><p>Give Lewy accurate product information so it can answer customers.</p></div>
+      <button onClick={()=>setOpen(true)}>+ Add product</button>
+    </div>
+
+    {products.length===0 ? <div className="empty"><div>＋</div><h2>No products yet</h2><p>Add your first product, price, images or documents.</p><button onClick={()=>setOpen(true)}>Add your first product</button></div> :
+      <div className="products">{products.map((p,i)=><div className="product" key={i}><h2>{p.name}</h2><b>{p.price ? `KES ${p.price}` : "Price not set"}</b><p>{p.description}</p></div>)}</div>}
+
+    {open && <div className="overlay" onClick={()=>setOpen(false)}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <h2>Add product</h2>
+        <input placeholder="Product name" value={name} onChange={e=>setName(e.target.value)}/>
+        <input placeholder="Price (KES)" value={price} onChange={e=>setPrice(e.target.value)}/>
+        <textarea placeholder="Description" value={description} onChange={e=>setDescription(e.target.value)}/>
+        <div className="actions"><button className="cancel" onClick={()=>setOpen(false)}>Cancel</button><button onClick={addProduct}>Save product</button></div>
+      </div>
+    </div>}
+
+    <style jsx>{`
+      .page{min-height:100vh;background:#f7f8fc;padding:35px;max-width:1250px;margin:auto;font-family:Arial;color:#171827}.back{color:#7657ff;text-decoration:none;font-weight:700;font-size:13px}.head{display:flex;justify-content:space-between;align-items:end;margin:35px 0}.head span{font-size:10px;color:#7657ff;font-weight:800;letter-spacing:1.5px}.head h1{font-size:32px;margin:8px 0}.head p{color:#777b8d}.head button,.empty button,.actions button{border:0;background:#7657ff;color:white;padding:12px 17px;border-radius:10px;font-weight:800;cursor:pointer}.empty{background:#fff;border:1px solid #e5e6ed;border-radius:20px;text-align:center;padding:80px 20px}.empty div{font-size:35px;color:#7657ff}.empty h2{margin:15px 0 5px}.empty p{color:#777b8d;font-size:13px}.products{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.product{background:#fff;border:1px solid #e5e6ed;border-radius:18px;padding:22px}.product h2{font-size:17px}.product b{color:#7657ff}.product p{color:#777b8d;font-size:12px}.overlay{position:fixed;inset:0;background:#0008;display:grid;place-items:center;padding:20px}.modal{background:#fff;border-radius:20px;padding:25px;width:min(500px,100%)}.modal h2{margin-top:0}.modal input,.modal textarea{width:100%;padding:13px;border:1px solid #dddfea;border-radius:10px;margin:7px 0;font:inherit}.modal textarea{height:110px;resize:vertical}.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}.cancel{background:#eee!important;color:#333!important}@media(max-width:700px){.head{display:block}.head button{margin-top:15px}.products{grid-template-columns:1fr}}
     `}</style>
-
-    <header className="header">
-      <div className="left"><Link href="/dashboard" className="back">← Dashboard</Link><div><div className="title">Products & Media</div><div className="sub">Give Lewy access to your products, images and documents</div></div></div>
-      <button className="add" onClick={() => setShow(true)}>+ Add Product</button>
-    </header>
-
-    <main className="content">
-      <section className="hero"><div className="tag">AI product knowledge</div><h1>Products, photos, videos and documents.</h1><p>Add the information Lewy needs to answer customer questions and eventually send the right product media through connected channels.</p></section>
-
-      <div className="stats">
-        <div className="stat"><small>Products</small><strong>{products.length}</strong></div>
-        <div className="stat"><small>Photos & media</small><strong>{products.reduce((a,p)=>a+p.media,0)}</strong></div>
-        <div className="stat"><small>AI enabled</small><strong>{products.length}</strong></div>
-        <div className="stat"><small>Documents</small><strong>0</strong></div>
-      </div>
-
-      <div className="toolbar"><h2>Your product library</h2><input className="search" placeholder="Search products..." /></div>
-
-      <div className="products">
-        {products.length === 0 ? <div className="empty"><strong>Your product library is empty</strong>No products have been added yet.<br/><button className="add" style={{marginTop:15}} onClick={()=>setShow(true)}>+ Add your first product</button></div> :
-        products.map(p=><div className="product" key={p.name+p.sku}><div className="visual">▣</div><div className="details"><strong>{p.name}</strong><div className="sku">SKU: {p.sku}</div><div className="price">KES {p.price}</div><div className="meta"><span>Stock: {p.stock}</span><span>{p.media} media</span></div></div></div>)}
-      </div>
-    </main>
-
-    {show && <div className="modalBg"><div className="modal">
-      <h2>Add product</h2>
-      <div className="field"><label>PRODUCT NAME</label><input value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Premium Hoodie" /></div>
-      <div className="field"><label>SKU / PRODUCT CODE</label><input value={sku} onChange={e=>setSku(e.target.value)} placeholder="e.g. HD-001" /></div>
-      <div className="field"><label>PRICE (KES)</label><input value={price} onChange={e=>setPrice(e.target.value)} placeholder="e.g. 3500" /></div>
-      <div className="actions"><button className="cancel" onClick={()=>setShow(false)}>Cancel</button><button className="save" onClick={addProduct}>Create product</button></div>
-    </div></div>}
-  </div>;
+  </main>
 }
