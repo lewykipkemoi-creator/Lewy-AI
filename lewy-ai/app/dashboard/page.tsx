@@ -1,856 +1,251 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  LayoutDashboard,
-  MessageSquare,
-  Users,
-  TrendingUp,
-  CalendarDays,
-  Clock3,
-  Settings,
-  Menu,
-  X,
-  LogOut,
-  Sparkles,
-  ArrowRight,
-  Plus
-} from "lucide-react";
-import { createClient } from "../../lib/supabase";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
-export default function DashboardPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(true);
+const nav = [
+  ["Overview", "/dashboard", "⌂"],
+  ["Conversations", "/dashboard/conversations", "◉"],
+  ["Customers", "/dashboard/customers", "♙"],
+  ["Leads", "/dashboard/leads", "◆"],
+  ["Revenue", "/dashboard/revenue", "₵"],
+  ["Follow-ups", "/dashboard/followups", "↻"],
+  ["Calendar", "/dashboard/calendar", "▣"],
+  ["Settings", "/dashboard/settings", "⚙"],
+];
 
-  useEffect(() => {
-    const supabase = createClient();
-
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) {
-        window.location.href = "/login";
-        return;
-      }
-
-      setEmail(data.user.email || "");
-      setLoading(false);
-    });
-  }, []);
-
-  async function logout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    window.location.href = "/login";
-  }
-
-  if (loading) {
-    return (
-      <div className="loading">
-        <div className="loading-box">
-          <Sparkles size={25} />
-          <span>Loading Lewy...</span>
-        </div>
-
-        <style jsx>{`
-          .loading {
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            background: #f6f7fb;
-            font-family: Arial, sans-serif;
-          }
-
-          .loading-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #111827;
-            font-weight: 700;
-          }
-        `}</style>
-      </div>
-    );
-  }
-
-  const nav = [
-    ["Overview", "/dashboard", LayoutDashboard],
-    ["Conversations", "/dashboard/conversations", MessageSquare],
-    ["Customers", "/dashboard/customers", Users],
-    ["Leads", "/dashboard/leads", TrendingUp],
-    ["Follow-ups", "/dashboard/followups", Clock3],
-    ["Calendar", "/dashboard/calendar", CalendarDays],
-    ["Settings", "/dashboard/settings", Settings]
-  ];
+export default function Dashboard() {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
   return (
     <div className="app">
-      <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
-        <div className="logo-area">
-          <Link href="/" className="logo">
-            <span className="logo-icon">
-              <Sparkles size={18} />
-            </span>
-            <span>Lewy AI</span>
-          </Link>
+      {open && (
+        <div className="backdrop" onClick={() => setOpen(false)} />
+      )}
 
-          <button
-            className="close-menu"
-            onClick={() => setMenuOpen(false)}
-          >
-            <X size={21} />
-          </button>
+      <aside className={`sidebar ${open ? "show" : ""}`}>
+        <div className="brand">
+          <div className="logo">L</div>
+          <div>
+            <strong>Lewy AI</strong>
+            <small>Business OS</small>
+          </div>
+          <button className="close" onClick={() => setOpen(false)}>×</button>
         </div>
 
         <div className="workspace">
-          <span className="workspace-label">WORKSPACE</span>
-          <div className="workspace-name">
-            <span className="online" />
-            My Business
-          </div>
+          <span>WORKSPACE</span>
+          <strong>My Business</strong>
         </div>
 
         <nav>
-          <span className="nav-title">MENU</span>
-
-          {nav.map(([label, href, Icon]) => {
-            const IconComponent = Icon as typeof LayoutDashboard;
-            const active = href === "/dashboard";
-
-            return (
-              <Link
-                href={href as string}
-                key={label as string}
-                className={`nav-link ${active ? "active" : ""}`}
-                onClick={() => setMenuOpen(false)}
-              >
-                <IconComponent size={18} />
-                <span>{label as string}</span>
-              </Link>
-            );
-          })}
+          {nav.map(([name, href, icon]) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setOpen(false)}
+              className={
+                pathname === href ||
+                (href !== "/dashboard" && pathname.startsWith(href))
+                  ? "active"
+                  : ""
+              }
+            >
+              <span>{icon}</span>
+              {name}
+            </Link>
+          ))}
         </nav>
 
-        <div className="account">
-          <div className="avatar">
-            {email.charAt(0).toUpperCase() || "U"}
+        <div className="sidebarBottom">
+          <div className="aiBox">
+            <b>✦ Lewy AI</b>
+            <p>Your AI assistant is ready to help recover lost opportunities.</p>
+            <Link href="/dashboard/settings">Configure AI →</Link>
           </div>
 
-          <div className="account-text">
-            <strong>My account</strong>
-            <span>{email}</span>
-          </div>
-
-          <button onClick={logout} title="Sign out">
-            <LogOut size={17} />
-          </button>
+          <Link href="/" className="homeLink">← Back to website</Link>
         </div>
       </aside>
 
-      {menuOpen && (
-        <button
-          className="overlay"
-          onClick={() => setMenuOpen(false)}
-          aria-label="Close menu"
-        />
-      )}
-
       <main className="main">
         <header className="topbar">
-          <button
-            className="menu-button"
-            onClick={() => setMenuOpen(true)}
-          >
-            <Menu size={22} />
-          </button>
-
-          <div className="top-title">
-            <span>Dashboard</span>
+          <button className="menu" onClick={() => setOpen(true)}>☰</button>
+          <div>
+            <strong>Dashboard</strong>
+            <span>Overview of your business</span>
           </div>
 
-          <Link href="/dashboard/settings" className="settings-button">
-            <Settings size={19} />
-          </Link>
+          <div className="topActions">
+            <button onClick={() => alert("No new notifications.")}>🔔</button>
+            <Link href="/dashboard/settings" className="avatar">L</Link>
+          </div>
         </header>
 
         <section className="content">
-          <div className="heading">
+          <div className="welcome">
             <div>
-              <span className="eyebrow">YOUR WORKSPACE</span>
-              <h1>Overview</h1>
-              <p>
-                See what is happening with your customer conversations.
-              </p>
+              <span className="eyebrow">BUSINESS OVERVIEW</span>
+              <h1>Good afternoon 👋</h1>
+              <p>Here is what is happening with your customers today.</p>
             </div>
-
-            <Link href="/dashboard/settings" className="connect">
-              <Plus size={17} />
-              Connect channel
+            <Link className="primary" href="/dashboard/conversations">
+              Open Inbox →
             </Link>
           </div>
 
           <div className="stats">
-            <div className="stat">
-              <div className="stat-icon">
-                <MessageSquare size={20} />
-              </div>
-              <div>
-                <span>Conversations</span>
-                <strong>0</strong>
-                <small>No conversations yet</small>
-              </div>
-            </div>
-
-            <div className="stat">
-              <div className="stat-icon">
-                <Users size={20} />
-              </div>
-              <div>
-                <span>Customers</span>
-                <strong>0</strong>
-                <small>No customers yet</small>
-              </div>
-            </div>
-
-            <div className="stat">
-              <div className="stat-icon">
-                <TrendingUp size={20} />
-              </div>
-              <div>
-                <span>Leads</span>
-                <strong>0</strong>
-                <small>No leads yet</small>
-              </div>
-            </div>
-
-            <div className="stat">
-              <div className="stat-icon">
-                <CalendarDays size={20} />
-              </div>
-              <div>
-                <span>Appointments</span>
-                <strong>0</strong>
-                <small>No appointments yet</small>
-              </div>
-            </div>
+            <Stat title="Revenue recovered" value="KES 184,500" change="+18.4%" />
+            <Stat title="Active leads" value="24" change="+6 this week" />
+            <Stat title="Unread conversations" value="8" change="3 HOT leads" />
+            <Stat title="Follow-ups due" value="12" change="Today" />
           </div>
 
-          <div className="main-card">
-            <div className="card-header">
-              <div>
-                <h2>Get started with Lewy</h2>
-                <p>
-                  Connect the channels your customers use to contact your
-                  business.
-                </p>
-              </div>
-
-              <Sparkles size={24} />
-            </div>
-
-            <div className="steps">
-              <div className="step">
-                <div className="number">1</div>
+          <div className="grid">
+            <section className="card large">
+              <div className="cardHead">
                 <div>
-                  <strong>Connect a customer channel</strong>
-                  <p>
-                    Bring WhatsApp, Gmail and other conversations into Lewy.
-                  </p>
+                  <h2>Revenue at risk</h2>
+                  <p>Customers who may be lost because of delayed responses.</p>
                 </div>
-                <Link href="/dashboard/settings">
-                  Set up <ArrowRight size={15} />
-                </Link>
+                <Link href="/dashboard/leads">View leads →</Link>
               </div>
 
-              <div className="step">
-                <div className="number">2</div>
-                <div>
-                  <strong>Tell Lewy about your business</strong>
-                  <p>
-                    Add your business information, products and instructions.
-                  </p>
-                </div>
-                <Link href="/dashboard/settings">
-                  Configure <ArrowRight size={15} />
-                </Link>
+              <div className="risk">
+                <div className="riskNumber">KES 92,000</div>
+                <span className="danger">▲ 12.8%</span>
               </div>
 
-              <div className="step">
-                <div className="number">3</div>
-                <div>
-                  <strong>Start recovering missed opportunities</strong>
-                  <p>
-                    Lewy can identify leads, respond and follow up with
-                    customers.
-                  </p>
-                </div>
-                <span className="coming">Ready after setup</span>
+              <div className="bars">
+                <i style={{height:"35%"}} />
+                <i style={{height:"48%"}} />
+                <i style={{height:"42%"}} />
+                <i style={{height:"68%"}} />
+                <i style={{height:"55%"}} />
+                <i style={{height:"82%"}} />
+                <i style={{height:"70%"}} />
+                <i style={{height:"95%"}} />
               </div>
-            </div>
+              <div className="barLabels">
+                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span>
+                <span>Fri</span><span>Sat</span><span>Sun</span><span>Today</span>
+              </div>
+            </section>
+
+            <section className="card">
+              <div className="cardHead">
+                <div>
+                  <h2>Hot leads</h2>
+                  <p>Highest-value opportunities</p>
+                </div>
+                <Link href="/dashboard/leads">All →</Link>
+              </div>
+
+              <Lead name="Brian Otieno" detail="Website • KES 45,000" />
+              <Lead name="Mercy Wanjiku" detail="WhatsApp • KES 32,500" />
+              <Lead name="Kevin Kiptoo" detail="Instagram • KES 18,000" />
+              <Lead name="Aisha Hassan" detail="Facebook • KES 12,000" />
+            </section>
           </div>
 
-          <div className="bottom-grid">
-            <div className="small-card">
-              <MessageSquare size={21} />
-              <h3>Conversations</h3>
-              <p>
-                Your unified customer inbox will appear here once a channel
-                is connected.
-              </p>
-              <Link href="/dashboard/conversations">
-                Open conversations <ArrowRight size={15} />
-              </Link>
-            </div>
+          <div className="grid">
+            <section className="card">
+              <div className="cardHead">
+                <div>
+                  <h2>Recent conversations</h2>
+                  <p>Latest customer activity</p>
+                </div>
+                <Link href="/dashboard/conversations">Inbox →</Link>
+              </div>
 
-            <div className="small-card">
-              <TrendingUp size={21} />
-              <h3>Revenue at risk</h3>
-              <p>
-                Lewy will calculate opportunities from your real customer
-                conversations. No artificial numbers are shown.
-              </p>
-              <Link href="/dashboard/revenue">
-                View revenue <ArrowRight size={15} />
-              </Link>
-            </div>
+              <Conversation name="Brian Otieno" text="Is the package still available?" time="2m" hot />
+              <Conversation name="Mercy Wanjiku" text="I would like to book an appointment." time="8m" />
+              <Conversation name="Kevin Kiptoo" text="How much does the premium plan cost?" time="24m" />
+            </section>
+
+            <section className="card">
+              <div className="cardHead">
+                <div>
+                  <h2>Today's follow-ups</h2>
+                  <p>Don't let opportunities go cold.</p>
+                </div>
+                <Link href="/dashboard/followups">View all →</Link>
+              </div>
+
+              <Follow name="Brian Otieno" action="Follow up on quote" />
+              <Follow name="Sarah Kimani" action="Check appointment" />
+              <Follow name="Daniel Mwangi" action="Send product details" />
+            </section>
           </div>
         </section>
       </main>
 
       <style jsx>{`
-        * {
-          box-sizing: border-box;
-        }
-
-        .app {
-          min-height: 100vh;
-          background: #f6f7fb;
-          color: #111827;
-          font-family: Arial, Helvetica, sans-serif;
-        }
-
-        .sidebar {
-          position: fixed;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: 250px;
-          background: #ffffff;
-          border-right: 1px solid #e5e7eb;
-          padding: 20px 14px;
-          display: flex;
-          flex-direction: column;
-          z-index: 100;
-        }
-
-        .logo-area {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 3px 7px 25px;
-        }
-
-        .logo {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          text-decoration: none;
-          color: #111827;
-          font-size: 19px;
-          font-weight: 800;
-        }
-
-        .logo-icon {
-          width: 34px;
-          height: 34px;
-          border-radius: 10px;
-          background: #111827;
-          color: white;
-          display: grid;
-          place-items: center;
-        }
-
-        .close-menu {
-          display: none;
-        }
-
-        .workspace {
-          border: 1px solid #e5e7eb;
-          background: #f9fafb;
-          border-radius: 11px;
-          padding: 12px;
-          margin-bottom: 22px;
-        }
-
-        .workspace-label,
-        .nav-title {
-          display: block;
-          font-size: 10px;
-          font-weight: 800;
-          color: #9ca3af;
-          letter-spacing: 0.08em;
-        }
-
-        .workspace-name {
-          margin-top: 7px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 13px;
-          font-weight: 700;
-        }
-
-        .online {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: #22c55e;
-        }
-
-        nav {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .nav-title {
-          margin: 0 10px 8px;
-        }
-
-        .nav-link {
-          min-height: 43px;
-          border-radius: 9px;
-          padding: 0 11px;
-          display: flex;
-          align-items: center;
-          gap: 11px;
-          text-decoration: none;
-          color: #6b7280;
-          font-size: 13px;
-          font-weight: 600;
-        }
-
-        .nav-link:hover {
-          background: #f3f4f6;
-          color: #111827;
-        }
-
-        .nav-link.active {
-          background: #111827;
-          color: #ffffff;
-        }
-
-        .account {
-          margin-top: auto;
-          padding-top: 15px;
-          border-top: 1px solid #e5e7eb;
-          display: flex;
-          align-items: center;
-          gap: 9px;
-        }
-
-        .avatar {
-          width: 35px;
-          height: 35px;
-          border-radius: 50%;
-          background: #e5e7eb;
-          display: grid;
-          place-items: center;
-          font-size: 13px;
-          font-weight: 800;
-          flex-shrink: 0;
-        }
-
-        .account-text {
-          min-width: 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 3px;
-        }
-
-        .account-text strong {
-          font-size: 12px;
-        }
-
-        .account-text span {
-          font-size: 10px;
-          color: #9ca3af;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-        }
-
-        .account button,
-        .settings-button,
-        .menu-button {
-          border: 0;
-          background: transparent;
-          cursor: pointer;
-        }
-
-        .account button {
-          color: #6b7280;
-        }
-
-        .main {
-          margin-left: 250px;
-          min-height: 100vh;
-        }
-
-        .topbar {
-          height: 64px;
-          background: white;
-          border-bottom: 1px solid #e5e7eb;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 30px;
-        }
-
-        .top-title {
-          font-size: 13px;
-          color: #6b7280;
-          font-weight: 600;
-        }
-
-        .settings-button {
-          color: #6b7280;
-          display: flex;
-        }
-
-        .menu-button {
-          display: none;
-        }
-
-        .content {
-          max-width: 1350px;
-          margin: 0 auto;
-          padding: 32px;
-        }
-
-        .heading {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-          gap: 20px;
-          margin-bottom: 25px;
-        }
-
-        .eyebrow {
-          color: #9ca3af;
-          font-size: 10px;
-          font-weight: 800;
-          letter-spacing: 0.08em;
-        }
-
-        h1 {
-          margin: 5px 0 7px;
-          font-size: 30px;
-          letter-spacing: -0.04em;
-        }
-
-        .heading p {
-          margin: 0;
-          color: #6b7280;
-          font-size: 14px;
-        }
-
-        .connect {
-          display: inline-flex;
-          align-items: center;
-          gap: 7px;
-          background: #111827;
-          color: white;
-          text-decoration: none;
-          border-radius: 9px;
-          padding: 11px 15px;
-          font-size: 12px;
-          font-weight: 700;
-          white-space: nowrap;
-        }
-
-        .stats {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 15px;
-          margin-bottom: 18px;
-        }
-
-        .stat {
-          background: white;
-          border: 1px solid #e5e7eb;
-          border-radius: 14px;
-          padding: 19px;
-          display: flex;
-          gap: 13px;
-        }
-
-        .stat-icon {
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
-          background: #f3f4f6;
-          display: grid;
-          place-items: center;
-          flex-shrink: 0;
-        }
-
-        .stat span,
-        .stat small {
-          display: block;
-        }
-
-        .stat span {
-          font-size: 11px;
-          color: #6b7280;
-          font-weight: 600;
-        }
-
-        .stat strong {
-          display: block;
-          font-size: 25px;
-          margin: 4px 0 2px;
-        }
-
-        .stat small {
-          color: #9ca3af;
-          font-size: 10px;
-        }
-
-        .main-card {
-          background: white;
-          border: 1px solid #e5e7eb;
-          border-radius: 16px;
-          overflow: hidden;
-          margin-bottom: 18px;
-        }
-
-        .card-header {
-          padding: 23px 25px;
-          display: flex;
-          justify-content: space-between;
-          gap: 20px;
-          border-bottom: 1px solid #e5e7eb;
-        }
-
-        .card-header h2 {
-          margin: 0 0 6px;
-          font-size: 18px;
-        }
-
-        .card-header p {
-          margin: 0;
-          color: #6b7280;
-          font-size: 13px;
-        }
-
-        .card-header > svg {
-          color: #6b7280;
-          flex-shrink: 0;
-        }
-
-        .steps {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .step {
-          display: grid;
-          grid-template-columns: 34px 1fr auto;
-          align-items: center;
-          gap: 13px;
-          padding: 18px 25px;
-          border-bottom: 1px solid #f0f0f0;
-        }
-
-        .step:last-child {
-          border-bottom: 0;
-        }
-
-        .number {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: #f3f4f6;
-          display: grid;
-          place-items: center;
-          font-size: 12px;
-          font-weight: 800;
-        }
-
-        .step strong {
-          display: block;
-          font-size: 13px;
-        }
-
-        .step p {
-          margin: 4px 0 0;
-          color: #9ca3af;
-          font-size: 11px;
-          line-height: 1.5;
-        }
-
-        .step a {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          color: #111827;
-          text-decoration: none;
-          font-size: 11px;
-          font-weight: 700;
-        }
-
-        .coming {
-          color: #9ca3af;
-          font-size: 10px;
-          white-space: nowrap;
-        }
-
-        .bottom-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 18px;
-        }
-
-        .small-card {
-          background: white;
-          border: 1px solid #e5e7eb;
-          border-radius: 15px;
-          padding: 22px;
-        }
-
-        .small-card > svg {
-          color: #374151;
-        }
-
-        .small-card h3 {
-          margin: 13px 0 6px;
-          font-size: 15px;
-        }
-
-        .small-card p {
-          margin: 0 0 15px;
-          color: #6b7280;
-          font-size: 12px;
-          line-height: 1.6;
-        }
-
-        .small-card a {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          color: #111827;
-          text-decoration: none;
-          font-size: 11px;
-          font-weight: 700;
-        }
-
-        .overlay {
-          display: none;
-        }
-
-        @media (max-width: 1000px) {
-          .stats {
-            grid-template-columns: repeat(2, 1fr);
-          }
-        }
-
-        @media (max-width: 750px) {
-          .sidebar {
-            transform: translateX(-100%);
-            transition: transform 0.2s ease;
-            width: 275px;
-            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.12);
-          }
-
-          .sidebar.open {
-            transform: translateX(0);
-          }
-
-          .close-menu {
-            display: grid;
-            place-items: center;
-            border: 0;
-            background: transparent;
-            color: #6b7280;
-          }
-
-          .overlay {
-            display: block;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.35);
-            border: 0;
-            z-index: 90;
-          }
-
-          .main {
-            margin-left: 0;
-          }
-
-          .menu-button {
-            display: grid;
-            place-items: center;
-            color: #111827;
-          }
-
-          .topbar {
-            padding: 0 16px;
-          }
-
-          .content {
-            padding: 22px 15px 35px;
-          }
-
-          .heading {
-            align-items: stretch;
-            flex-direction: column;
-          }
-
-          .connect {
-            justify-content: center;
-          }
-        }
-
-        @media (max-width: 600px) {
-          .stats,
-          .bottom-grid {
-            grid-template-columns: 1fr;
-          }
-
-          h1 {
-            font-size: 25px;
-          }
-
-          .step {
-            grid-template-columns: 32px 1fr;
-            padding: 16px;
-          }
-
-          .step a,
-          .coming {
-            grid-column: 2;
-            justify-self: start;
-            margin-top: 4px;
-          }
-
-          .card-header {
-            padding: 20px 17px;
-          }
-        }
-
-        @media (max-width: 400px) {
-          .content {
-            padding-left: 12px;
-            padding-right: 12px;
-          }
-
-          .stat {
-            padding: 16px;
-          }
-        }
+        *{box-sizing:border-box}
+        .app{min-height:100vh;background:#f6f7fb;color:#172033;display:flex;font-family:Arial,sans-serif}
+        .sidebar{width:250px;background:#101828;color:#fff;min-height:100vh;position:fixed;left:0;top:0;bottom:0;padding:22px 14px;display:flex;flex-direction:column;z-index:20}
+        .brand{display:flex;align-items:center;gap:10px;padding:4px 8px 24px}
+        .logo{width:38px;height:38px;border-radius:11px;background:#6d5dfc;display:grid;place-items:center;font-size:20px;font-weight:800}
+        .brand strong{display:block;font-size:17px}.brand small{color:#98a2b3;font-size:11px}
+        .close{display:none;margin-left:auto;background:none;border:0;color:white;font-size:25px}
+        .workspace{border:1px solid #26334a;border-radius:10px;padding:11px;margin-bottom:18px}
+        .workspace span{font-size:9px;color:#98a2b3;display:block;margin-bottom:5px}
+        .workspace strong{font-size:13px}
+        nav{display:flex;flex-direction:column;gap:4px}
+        nav a{color:#98a2b3;text-decoration:none;padding:12px;border-radius:9px;font-size:13px;display:flex;align-items:center;gap:12px}
+        nav a span{width:18px;text-align:center}
+        nav a:hover,nav a.active{background:#1d2939;color:#fff}
+        nav a.active{box-shadow:inset 3px 0 #7c6cff}
+        .sidebarBottom{margin-top:auto}
+        .aiBox{background:#192337;border:1px solid #26334a;border-radius:12px;padding:14px;font-size:12px}
+        .aiBox b{color:#c5bfff}.aiBox p{color:#98a2b3;line-height:1.5}.aiBox a{color:#b9b2ff;text-decoration:none}
+        .homeLink{display:block;color:#98a2b3;text-decoration:none;font-size:12px;padding:15px 5px}
+        .main{margin-left:250px;width:calc(100% - 250px)}
+        .topbar{height:70px;background:white;border-bottom:1px solid #eaecf0;display:flex;align-items:center;padding:0 28px;justify-content:space-between}
+        .topbar strong{display:block;font-size:14px}.topbar span{font-size:11px;color:#98a2b3}
+        .topActions{display:flex;align-items:center;gap:12px}.topActions button{border:0;background:#f2f4f7;border-radius:8px;padding:9px;cursor:pointer}
+        .avatar{width:34px;height:34px;border-radius:50%;background:#6d5dfc;color:white;text-decoration:none;display:grid;place-items:center;font-weight:bold}
+        .menu{display:none}
+        .content{padding:30px;max-width:1400px;margin:auto}
+        .welcome{display:flex;justify-content:space-between;align-items:end;margin-bottom:26px}
+        .eyebrow{font-size:10px;color:#6d5dfc;font-weight:bold;letter-spacing:1px}
+        h1{font-size:28px;margin:7px 0}.welcome p,.card p{color:#667085;font-size:13px;margin:0}
+        .primary{background:#6d5dfc;color:white;text-decoration:none;padding:12px 16px;border-radius:9px;font-size:13px;font-weight:bold}
+        .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:18px}
+        .card,.stats>div{background:white;border:1px solid #eaecf0;border-radius:13px}
+        .stat{padding:18px}.stat small{color:#667085;font-size:11px}.stat h3{font-size:24px;margin:8px 0}.stat span{font-size:10px;color:#12b76a}
+        .grid{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;margin-bottom:18px}
+        .card{padding:20px;min-width:0}
+        .cardHead{display:flex;justify-content:space-between;gap:15px;align-items:start;margin-bottom:20px}
+        h2{font-size:15px;margin:0 0 5px}.cardHead a{color:#6d5dfc;text-decoration:none;font-size:11px;white-space:nowrap}
+        .risk{display:flex;align-items:center;gap:12px}.riskNumber{font-size:30px;font-weight:800}.danger{color:#f04438;font-size:11px}
+        .bars{height:125px;display:flex;align-items:end;gap:8px;margin-top:20px}.bars i{flex:1;background:#8b7dff;border-radius:4px 4px 0 0;display:block;min-width:5px}
+        .barLabels{display:flex;justify-content:space-between;color:#98a2b3;font-size:9px;margin-top:6px}
+        .lead,.conversation,.follow{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid #f2f4f7}
+        .lead b,.conversation b,.follow b{font-size:12px}.lead small,.conversation small,.follow small{display:block;color:#98a2b3;font-size:10px;margin-top:4px}
+        .badge{font-size:9px;background:#fee4e2;color:#b42318;border-radius:20px;padding:5px 7px}
+        .dot{width:7px;height:7px;background:#12b76a;border-radius:50%;display:inline-block;margin-right:6px}
+        @media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+        @media(max-width:700px){.sidebar{transform:translateX(-105%);transition:.2s;width:270px}.sidebar.show{transform:translateX(0)}.close{display:block}.main{margin-left:0;width:100%}.menu{display:block;border:0;background:none;font-size:22px;margin-right:12px}.topbar{padding:0 16px}.topbar>div:first-of-type{margin-right:auto}.content{padding:20px 14px}.welcome{align-items:start;gap:18px;flex-direction:column}.welcome h1{font-size:23px}.stats{grid-template-columns:1fr 1fr;gap:10px}.stat{padding:14px}.stat h3{font-size:20px}.card{padding:16px}.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:19}}
       `}</style>
     </div>
   );
+}
+
+function Stat({title,value,change}:{title:string,value:string,change:string}) {
+  return <div className="stat"><small>{title}</small><h3>{value}</h3><span>↑ {change}</span></div>
+}
+
+function Lead({name,detail}:{name:string,detail:string}) {
+  return <div className="lead"><div><b>{name}</b><small>{detail}</small></div><span className="badge">HOT</span></div>
+}
+
+function Conversation({name,text,time,hot}:{name:string,text:string,time:string,hot?:boolean}) {
+  return <div className="conversation"><div><b>{hot && <span className="dot"/>}{name}</b><small>{text}</small></div><small>{time}</small></div>
+}
+
+function Follow({name,action}:{name:string,action:string}) {
+  return <div className="follow"><div><b>{name}</b><small>{action}</small></div><button onClick={()=>alert("Follow-up marked as completed.")}>✓</button></div>
 }
