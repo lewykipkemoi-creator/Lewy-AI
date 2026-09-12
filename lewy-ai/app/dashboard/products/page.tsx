@@ -1541,7 +1541,7 @@ function MediaModal({
               const newFiles = Array.from(e.target.files || []);
               setMedia((items) => [
                 ...items,
-                ...newFiles.map((file, index) => ({
+                ...newFiles.map((file, index): Media => ({
                   id: Date.now() + index,
                   name: file.name,
                   type: file.type.startsWith("image/")
@@ -1550,6 +1550,9 @@ function MediaModal({
                     ? "video"
                     : file.name.toLowerCase().endsWith(".pdf")
                     ? "pdf"
+                    : file.name.toLowerCase().includes("size") ||
+                      file.name.toLowerCase().includes("chart")
+                    ? "chart"
                     : "document",
                   size:
                     file.size > 1024 * 1024
