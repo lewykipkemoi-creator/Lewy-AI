@@ -4,378 +4,201 @@ import Link from "next/link";
 import { useState } from "react";
 
 const nav = [
-  { name: "Overview", href: "/dashboard", icon: "⌂" },
-  { name: "Conversations", href: "/dashboard/conversations", icon: "◌" },
-  { name: "Customers", href: "/dashboard/customers", icon: "♙" },
-  { name: "Leads", href: "/dashboard/leads", icon: "◈" },
-  { name: "Revenue", href: "/dashboard/revenue", icon: "↗" },
-  { name: "Follow-ups", href: "/dashboard/followups", icon: "◷" },
-  { name: "Calendar", href: "/dashboard/calendar", icon: "□" },
+  ["Overview", "/dashboard", "⌂"],
+  ["Conversations", "/dashboard/conversations", "◌"],
+  ["Customers", "/dashboard/customers", "◉"],
+  ["Leads", "/dashboard/leads", "◇"],
+  ["Products & Media", "/dashboard/products", "▣"],
+  ["Revenue", "/dashboard/revenue", "↗"],
+  ["Follow-ups", "/dashboard/followups", "↻"],
+  ["Calendar", "/dashboard/calendar", "□"],
+  ["Channels", "/dashboard/channels", "⌁"],
+  ["Settings", "/dashboard/settings", "⚙"],
 ];
 
-const conversations = [
-  { name: "Brian Otieno", text: "I'm interested in the premium package...", channel: "WhatsApp", time: "2m", hot: true, avatar: "BO" },
-  { name: "Mercy Wanjiku", text: "Can I book an appointment tomorrow?", channel: "Website", time: "8m", hot: true, avatar: "MW" },
-  { name: "David Kamau", text: "Thanks, I'll get back to you.", channel: "Instagram", time: "21m", hot: false, avatar: "DK" },
-  { name: "Sarah Njeri", text: "How much does the service cost?", channel: "Facebook", time: "34m", hot: true, avatar: "SN" },
+const channels = [
+  { name: "WhatsApp Business", icon: "◉", desc: "Customer messages and automated replies", color: "green" },
+  { name: "Gmail", icon: "✉", desc: "Read, reply and follow up with email leads", color: "red" },
+  { name: "Instagram", icon: "◎", desc: "Manage Instagram direct messages", color: "pink" },
+  { name: "Facebook Messenger", icon: "f", desc: "Capture and respond to Messenger leads", color: "blue" },
+  { name: "Telegram", icon: "➤", desc: "Connect Telegram conversations to Lewy", color: "cyan" },
+  { name: "Website Chat", icon: "⌁", desc: "Let visitors talk to Lewy on your website", color: "purple", connected: true },
+  { name: "Google Calendar", icon: "□", desc: "Let Lewy book and manage appointments", color: "yellow" },
 ];
 
-const leads = [
-  { name: "Brian Otieno", source: "WhatsApp", value: "KES 85,000", score: 96 },
-  { name: "Mercy Wanjiku", source: "Website", value: "KES 42,000", score: 91 },
-  { name: "Sarah Njeri", source: "Instagram", value: "KES 28,500", score: 84 },
-  { name: "Daniel Kiptoo", source: "Facebook", value: "KES 19,000", score: 77 },
-];
-
-export default function DashboardPage() {
-  const [mobileOpen, setMobileOpen] = useState(false);
+export default function Dashboard() {
+  const [menu, setMenu] = useState(false);
 
   return (
-    <main className="lew-dashboard">
+    <div className="app">
       <style jsx global>{`
         * { box-sizing: border-box; }
-        body { margin: 0; background: #f5f7fb; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #172033; }
-        a { text-decoration: none; color: inherit; }
-
-        .lew-dashboard { min-height: 100vh; display: flex; background: #f5f7fb; }
-
-        .sidebar {
-          width: 250px;
-          min-height: 100vh;
-          background: #101828;
-          color: #98a2b3;
-          padding: 22px 14px;
-          position: fixed;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          z-index: 50;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .brand { display:flex; align-items:center; gap:11px; padding: 4px 12px 28px; color:white; font-size:21px; font-weight:800; letter-spacing:-.5px; }
-        .brand-mark { width:34px; height:34px; border-radius:10px; display:grid; place-items:center; background:linear-gradient(135deg,#7c3aed,#a855f7); color:white; font-weight:900; box-shadow:0 8px 20px rgba(124,58,237,.3); }
-
-        .workspace { margin:0 7px 24px; padding:11px; border:1px solid #253149; border-radius:12px; background:#172236; }
-        .workspace-label { font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:#667085; }
-        .workspace-name { margin-top:4px; color:#f2f4f7; font-size:13px; font-weight:700; }
-
-        .nav-label { font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:#667085; padding:0 12px 8px; }
-        .nav { display:flex; flex-direction:column; gap:4px; }
-        .nav-link { display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:10px; font-size:13px; font-weight:600; transition:.18s; }
-        .nav-link:hover { background:#19243a; color:#fff; }
-        .nav-link.active { background:linear-gradient(90deg,#7c3aed,#6d28d9); color:#fff; box-shadow:0 8px 20px rgba(109,40,217,.18); }
-        .nav-icon { width:21px; text-align:center; font-size:17px; }
-
-        .sidebar-bottom { margin-top:auto; }
-        .ai-status { margin:12px 7px; padding:13px; border:1px solid #26344d; border-radius:13px; background:#151f32; }
-        .ai-top { display:flex; align-items:center; gap:8px; color:#f2f4f7; font-size:12px; font-weight:700; }
-        .pulse { width:8px; height:8px; background:#12b76a; border-radius:50%; box-shadow:0 0 0 4px rgba(18,183,106,.1); }
-        .ai-status p { margin:7px 0 0; color:#667085; font-size:11px; line-height:1.5; }
-
-        .main { margin-left:250px; width:calc(100% - 250px); min-width:0; }
-        .topbar { height:72px; background:white; border-bottom:1px solid #eaecf0; display:flex; align-items:center; justify-content:space-between; padding:0 32px; position:sticky; top:0; z-index:30; }
-        .header-left { display:flex; align-items:center; min-width:0; flex:1; }
-        .top-left { min-width:0; }
-        .top-left h1 { margin:0; font-size:19px; letter-spacing:-.4px; color:#101828; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .top-left p { margin:4px 0 0; font-size:12px; color:#667085; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .top-actions { display:flex; align-items:center; gap:10px; flex:none; }
-        .icon-btn { width:38px; height:38px; border:1px solid #eaecf0; background:white; border-radius:10px; display:grid; place-items:center; cursor:pointer; color:#667085; font-size:16px; }
-        .avatar { width:36px; height:36px; border-radius:50%; background:#ede9fe; color:#6d28d9; display:grid; place-items:center; font-size:12px; font-weight:800; }
-
-        .content { padding:28px 32px 45px; max-width:1500px; margin:auto; }
-        .hero { display:grid; grid-template-columns:1.6fr 1fr; gap:18px; margin-bottom:20px; }
-        .hero-card { border-radius:18px; padding:25px; color:white; background:linear-gradient(135deg,#171d3a 0%,#30206b 55%,#5b21b6 100%); min-height:195px; position:relative; overflow:hidden; }
-        .hero-card:after { content:""; position:absolute; width:260px; height:260px; border:1px solid rgba(255,255,255,.08); border-radius:50%; right:-80px; top:-110px; box-shadow:0 0 0 35px rgba(255,255,255,.025),0 0 0 70px rgba(255,255,255,.02); }
-        .eyebrow { font-size:11px; text-transform:uppercase; letter-spacing:.1em; opacity:.7; font-weight:700; }
-        .risk-number { font-size:39px; line-height:1; font-weight:850; letter-spacing:-1.5px; margin:12px 0 8px; }
-        .hero-desc { font-size:12px; color:#d0d5dd; max-width:420px; line-height:1.55; }
-        .hero-bottom { display:flex; gap:12px; margin-top:19px; position:relative; z-index:2; }
-        .hero-btn { border:0; border-radius:9px; padding:9px 13px; font-size:12px; font-weight:700; cursor:pointer; background:white; color:#4c1d95; }
-        .hero-btn.secondary { background:rgba(255,255,255,.1); color:white; border:1px solid rgba(255,255,255,.15); }
-
-        .recovered-card { background:white; border:1px solid #eaecf0; border-radius:18px; padding:22px; display:flex; flex-direction:column; justify-content:space-between; }
-        .card-title { color:#667085; font-size:12px; font-weight:600; }
-        .recovered-number { font-size:30px; font-weight:850; color:#101828; margin-top:10px; letter-spacing:-1px; }
-        .positive { display:inline-flex; width:max-content; margin-top:8px; padding:5px 8px; border-radius:7px; background:#ecfdf3; color:#027a48; font-size:11px; font-weight:700; }
-        .mini-bars { display:flex; align-items:end; gap:5px; height:45px; margin-top:14px; }
-        .bar { flex:1; border-radius:4px 4px 0 0; background:#ddd6fe; }
-        .bar.active { background:#7c3aed; }
-
-        .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:15px; margin-bottom:20px; }
-        .stat { background:white; border:1px solid #eaecf0; border-radius:15px; padding:18px; }
-        .stat-top { display:flex; justify-content:space-between; align-items:center; }
-        .stat-icon { width:34px; height:34px; border-radius:9px; display:grid; place-items:center; background:#f4f3ff; color:#6941c6; }
-        .stat-value { font-size:24px; font-weight:820; color:#101828; margin-top:12px; letter-spacing:-.6px; }
-        .stat-label { color:#667085; font-size:11px; margin-top:3px; }
-        .trend { color:#039855; font-size:10px; font-weight:700; }
-
-        .grid { display:grid; grid-template-columns:1.15fr .85fr; gap:18px; }
-        .card { background:white; border:1px solid #eaecf0; border-radius:16px; overflow:hidden; }
-        .card-head { padding:18px 20px; border-bottom:1px solid #f0f2f5; display:flex; align-items:center; justify-content:space-between; }
-        .card-head h2 { margin:0; color:#101828; font-size:14px; }
-        .card-head span { color:#667085; font-size:11px; }
-        .view { color:#6941c6 !important; font-weight:700; cursor:pointer; }
-
-        .conversation { display:flex; align-items:center; gap:12px; padding:14px 20px; border-bottom:1px solid #f2f4f7; }
-        .conversation:last-child { border-bottom:0; }
-        .person-avatar { width:35px; height:35px; border-radius:10px; display:grid; place-items:center; background:#f2f4f7; color:#344054; font-size:10px; font-weight:800; flex:none; }
-        .conv-main { min-width:0; flex:1; }
-        .conv-name { font-size:12px; font-weight:750; color:#101828; display:flex; align-items:center; gap:7px; }
-        .hot { color:#f04438; font-size:9px; background:#fef3f2; padding:2px 5px; border-radius:5px; }
-        .conv-text { color:#667085; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:3px; }
-        .conv-meta { text-align:right; color:#98a2b3; font-size:10px; }
-
-        .lead-row { padding:14px 20px; border-bottom:1px solid #f2f4f7; }
-        .lead-row:last-child { border-bottom:0; }
-        .lead-top { display:flex; justify-content:space-between; align-items:center; }
-        .lead-name { font-size:12px; font-weight:750; color:#101828; }
-        .lead-value { font-size:11px; font-weight:750; color:#101828; }
-        .lead-bottom { display:flex; align-items:center; gap:8px; margin-top:7px; }
-        .source { color:#667085; font-size:10px; flex:1; }
-        .score { font-size:10px; font-weight:800; color:#027a48; }
-        .score-track { height:4px; flex:1; max-width:100px; background:#eaecf0; border-radius:20px; overflow:hidden; }
-        .score-fill { height:100%; background:#12b76a; border-radius:20px; }
-
-        .lower { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-top:18px; }
-        .activity { padding:15px 20px; display:flex; gap:11px; border-bottom:1px solid #f2f4f7; }
-        .activity:last-child { border-bottom:0; }
-        .activity-dot { width:8px; height:8px; border-radius:50%; background:#7c3aed; margin-top:4px; flex:none; box-shadow:0 0 0 4px #f4f3ff; }
-        .activity strong { display:block; font-size:11px; color:#344054; }
-        .activity p { margin:3px 0 0; color:#667085; font-size:10px; line-height:1.4; }
-        .activity time { margin-left:auto; color:#98a2b3; font-size:9px; white-space:nowrap; }
-
-        .appointment { padding:14px 20px; display:flex; gap:12px; align-items:center; border-bottom:1px solid #f2f4f7; }
-        .date-box { width:39px; height:42px; border-radius:9px; background:#f4f3ff; display:grid; place-items:center; text-align:center; color:#6941c6; }
-        .date-box b { font-size:15px; line-height:1; }
-        .date-box small { font-size:8px; text-transform:uppercase; }
-        .appointment strong { display:block; font-size:11px; }
-        .appointment span { color:#667085; font-size:10px; }
-
-        .follow { padding:13px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #f2f4f7; }
-        .follow-icon { width:28px; height:28px; border-radius:8px; background:#ecfdf3; color:#039855; display:grid; place-items:center; font-size:12px; }
-        .follow-main { flex:1; }
-        .follow-main strong { font-size:11px; display:block; }
-        .follow-main span { color:#667085; font-size:9px; }
-        .follow-time { font-size:9px; color:#98a2b3; }
-
-        .mobile-menu { display:none; border:1px solid #eaecf0; background:white; color:#344054; cursor:pointer; }
-        .mobile-overlay { display:none; }
-
-        @media(max-width:1100px) {
-          .hero { grid-template-columns:1fr; }
-          .stats { grid-template-columns:repeat(2,1fr); }
-          .grid { grid-template-columns:1fr; }
-          .lower { grid-template-columns:1fr 1fr; }
-        }
-
-        @media(max-width:760px) {
-          .sidebar { transform:translateX(-100%); transition:.22s ease; box-shadow:15px 0 35px rgba(16,24,40,.18); }
+        body { margin:0; font-family: Inter, Arial, sans-serif; background:#f6f7fb; color:#111827; }
+        a { text-decoration:none; color:inherit; }
+        .app { min-height:100vh; display:flex; }
+        .sidebar { width:260px; background:#0b1020; color:white; padding:22px 15px; position:fixed; inset:0 auto 0 0; z-index:50; }
+        .brand { display:flex; align-items:center; gap:11px; padding:4px 10px 25px; }
+        .brandMark { width:39px; height:39px; border-radius:12px; display:grid; place-items:center; background:linear-gradient(135deg,#7c3aed,#2563eb); font-weight:900; font-size:19px; }
+        .brandName { font-size:20px; font-weight:800; }
+        .brandSub { color:#8891a7; font-size:10px; margin-top:2px; }
+        .workspace { background:#151c30; border:1px solid #27304a; border-radius:13px; padding:12px; margin-bottom:18px; }
+        .workspace small { color:#8791aa; font-size:10px; }
+        .workspace strong { display:block; margin-top:4px; font-size:13px; }
+        .navTitle { color:#66718a; font-size:10px; font-weight:800; letter-spacing:.12em; margin:17px 10px 8px; text-transform:uppercase; }
+        .nav { display:flex; flex-direction:column; gap:3px; }
+        .nav a { display:flex; align-items:center; gap:11px; padding:10px 11px; border-radius:9px; color:#aeb6c9; font-size:13px; transition:.15s; }
+        .nav a:hover { background:#151d32; color:white; }
+        .nav a.active { background:linear-gradient(90deg,#222b47,#182139); color:white; box-shadow:inset 3px 0 #8b5cf6; }
+        .navIcon { width:20px; text-align:center; font-size:15px; }
+        .main { margin-left:260px; width:calc(100% - 260px); min-width:0; }
+        .top { height:72px; background:white; border-bottom:1px solid #e8eaf0; display:flex; align-items:center; justify-content:space-between; padding:0 30px; position:sticky; top:0; z-index:30; }
+        .mobileBtn { display:none; border:0; background:#f0f1f5; width:39px; height:39px; border-radius:10px; font-size:20px; }
+        .welcome small { color:#8991a3; }
+        .welcome strong { display:block; margin-top:3px; font-size:16px; }
+        .topRight { display:flex; align-items:center; gap:16px; }
+        .status { display:flex; align-items:center; gap:7px; color:#667085; font-size:12px; }
+        .dot { width:8px; height:8px; border-radius:50%; background:#22c55e; }
+        .avatar { width:37px; height:37px; border-radius:50%; background:#111827; color:white; display:grid; place-items:center; font-size:12px; font-weight:800; }
+        .content { padding:30px; max-width:1500px; margin:auto; }
+        .hero { border-radius:22px; padding:28px; color:white; background:linear-gradient(115deg,#11182c,#202d52 60%,#35246c); display:flex; justify-content:space-between; gap:20px; overflow:hidden; position:relative; }
+        .hero:after { content:""; width:280px; height:280px; border-radius:50%; background:#7c3aed; opacity:.15; position:absolute; right:-100px; top:-130px; }
+        .eyebrow { color:#a78bfa; font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+        .hero h1 { margin:9px 0 8px; font-size:29px; }
+        .hero p { margin:0; color:#b7bfd2; max-width:600px; line-height:1.6; font-size:13px; }
+        .heroBtn { margin-top:19px; display:inline-block; background:#8b5cf6; color:white; padding:11px 16px; border-radius:10px; font-weight:700; font-size:12px; }
+        .heroMetric { min-width:210px; padding:18px; border:1px solid #39445f; background:#ffffff09; border-radius:15px; position:relative; z-index:2; }
+        .heroMetric small { color:#9ca8bf; }
+        .heroMetric strong { display:block; font-size:27px; margin:7px 0; }
+        .up { color:#4ade80; font-size:12px; }
+        .sectionHead { display:flex; align-items:center; justify-content:space-between; margin:29px 0 14px; }
+        .sectionHead h2 { margin:0; font-size:17px; }
+        .sectionHead span { color:#8a91a1; font-size:11px; }
+        .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+        .card { background:white; border:1px solid #e7e9ef; border-radius:16px; padding:18px; }
+        .cardLabel { color:#7b8495; font-size:11px; }
+        .cardValue { font-size:25px; font-weight:800; margin:8px 0 5px; }
+        .cardChange { color:#16a34a; font-size:11px; }
+        .lower { display:grid; grid-template-columns:1.4fr 1fr; gap:16px; }
+        .panel { background:white; border:1px solid #e7e9ef; border-radius:17px; padding:20px; }
+        .panelTitle { font-weight:800; font-size:14px; margin-bottom:17px; }
+        .conversation { display:flex; gap:11px; padding:12px 0; border-top:1px solid #f0f1f5; }
+        .person { width:36px; height:36px; border-radius:11px; background:#eef0ff; display:grid; place-items:center; font-size:12px; font-weight:800; flex:none; }
+        .convMain { flex:1; min-width:0; }
+        .convMain strong { font-size:12px; }
+        .convMain p { margin:4px 0 0; color:#737b8c; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .badge { padding:4px 7px; border-radius:20px; background:#ecfdf3; color:#15803d; font-size:9px; font-weight:700; }
+        .quick { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .quick a { border:1px solid #eceef3; padding:14px; border-radius:12px; font-size:11px; font-weight:700; }
+        .quick a:hover { border-color:#c4b5fd; background:#faf9ff; }
+        .mobileOverlay { display:none; }
+        @media(max-width:900px) {
+          .sidebar { transform:translateX(-100%); transition:.2s; }
           .sidebar.open { transform:translateX(0); }
           .main { margin-left:0; width:100%; }
-          .topbar { padding:0 12px; height:66px; gap:8px; }
-          .header-left { min-width:0; }
-          .top-left h1 { font-size:15px; }
-          .top-left p { display:none; }
-          .mobile-menu {
-            display:grid;
-            width:36px;
-            height:36px;
-            flex:none;
-            border-radius:9px;
-            place-items:center;
-            margin-right:9px;
-            font-size:18px;
-          }
-          .mobile-overlay { display:block; position:fixed; inset:0; background:rgba(16,24,40,.4); z-index:40; }
-          .content { padding:18px 14px 30px; }
-          .hero-card { padding:20px; }
-          .risk-number { font-size:32px; }
-          .stats { gap:10px; }
-          .stat { padding:14px; }
-          .stat-value { font-size:20px; }
+          .mobileBtn { display:block; }
+          .top { padding:0 15px; }
+          .topRight .status { display:none; }
+          .content { padding:17px 14px 30px; }
+          .cards { grid-template-columns:1fr 1fr; }
           .lower { grid-template-columns:1fr; }
-          .top-actions { gap:5px; }
-          .top-actions .icon-btn { width:34px; height:34px; }
-          .top-actions .avatar { width:34px; height:34px; }
+          .hero { flex-direction:column; }
+          .heroMetric { min-width:0; }
+          .mobileOverlay { display:block; position:fixed; inset:0; background:#0008; z-index:40; }
         }
-
-        @media(max-width:380px) {
-          .topbar { padding:0 9px; }
-          .top-left h1 { font-size:14px; }
-          .top-actions .icon-btn:first-child { display:none; }
-          .mobile-menu { margin-right:7px; }
-        }
-
-        @media(max-width:430px) {
-          .stats { grid-template-columns:1fr 1fr; }
-          .stat-value { font-size:18px; }
-          .hero-bottom { flex-wrap:wrap; }
-          .hero-btn { flex:1; }
-          .recovered-number { font-size:27px; }
+        @media(max-width:500px) {
+          .cards { grid-template-columns:1fr; }
+          .hero h1 { font-size:23px; }
+          .welcome small { display:none; }
+          .welcome strong { font-size:14px; }
         }
       `}</style>
 
-      {mobileOpen && <div className="mobile-overlay" onClick={() => setMobileOpen(false)} />}
+      {menu && <div className="mobileOverlay" onClick={() => setMenu(false)} />}
 
-      <aside className={`sidebar ${mobileOpen ? "open" : ""}`}>
+      <aside className={`sidebar ${menu ? "open" : ""}`}>
         <div className="brand">
-          <div className="brand-mark">L</div>
-          Lewy AI
+          <div className="brandMark">L</div>
+          <div><div className="brandName">Lewy AI</div><div className="brandSub">REVENUE & RESPONSE OS</div></div>
         </div>
 
         <div className="workspace">
-          <div className="workspace-label">Workspace</div>
-          <div className="workspace-name">My Business</div>
+          <small>WORKSPACE</small>
+          <strong>My Business</strong>
         </div>
 
-        <div className="nav-label">Workspace</div>
+        <div className="navTitle">Workspace</div>
         <nav className="nav">
-          {nav.map((item) => (
-            <Link key={item.href} href={item.href} className={`nav-link ${item.href === "/dashboard" ? "active" : ""}`} onClick={() => setMobileOpen(false)}>
-              <span className="nav-icon">{item.icon}</span>
-              {item.name}
+          {nav.map(([label, href, icon], i) => (
+            <Link key={label} href={href} className={i === 0 ? "active" : ""} onClick={() => setMenu(false)}>
+              <span className="navIcon">{icon}</span>{label}
             </Link>
           ))}
         </nav>
-
-        <div className="nav-label" style={{marginTop:22}}>Manage</div>
-        <nav className="nav">
-          <Link href="/dashboard/settings" className="nav-link"><span className="nav-icon">⚙</span> Settings</Link>
-        </nav>
-
-        <div className="sidebar-bottom">
-          <div className="ai-status">
-            <div className="ai-top"><span className="pulse" /> Lewy AI is active</div>
-            <p>Your AI assistant is monitoring conversations and following up with leads.</p>
-          </div>
-        </div>
       </aside>
 
-      <section className="main">
-        <header className="topbar">
-          <div className="header-left">
-            <button className="mobile-menu" onClick={() => setMobileOpen(true)} aria-label="Open navigation">☰</button>
-            <div className="top-left">
-              <h1>Good afternoon 👋</h1>
-              <p>Here's what is happening with your business today.</p>
-            </div>
+      <main className="main">
+        <header className="top">
+          <div style={{display:"flex",alignItems:"center",gap:11}}>
+            <button className="mobileBtn" onClick={() => setMenu(true)}>☰</button>
+            <div className="welcome"><small>AI CUSTOMER & REVENUE OPERATIONS</small><strong>Good afternoon 👋</strong></div>
           </div>
-          <div className="top-actions">
-            <button className="icon-btn">⌕</button>
-            <button className="icon-btn">♧</button>
-            <div className="avatar">LK</div>
+          <div className="topRight">
+            <div className="status"><span className="dot" /> Lewy is active</div>
+            <div className="avatar">LY</div>
           </div>
         </header>
 
         <div className="content">
           <section className="hero">
-            <div className="hero-card">
+            <div style={{position:"relative",zIndex:2}}>
               <div className="eyebrow">Revenue Leak Detector</div>
-              <div className="risk-number">KES 174,500</div>
-              <div className="hero-desc">Estimated revenue currently at risk from unanswered, unqualified, or forgotten leads.</div>
-              <div className="hero-bottom">
-                <Link href="/dashboard/leads" className="hero-btn">View at-risk leads →</Link>
-                <Link href="/dashboard/conversations" className="hero-btn secondary">Open inbox</Link>
-              </div>
+              <h1>Never lose a customer because you replied too late.</h1>
+              <p>Lewy watches your customer conversations, finds missed opportunities, qualifies leads and follows up automatically.</p>
+              <Link className="heroBtn" href="/dashboard/channels">Connect your channels →</Link>
             </div>
-
-            <div className="recovered-card">
-              <div>
-                <div className="card-title">Revenue recovered this month</div>
-                <div className="recovered-number">KES 386,200</div>
-                <span className="positive">↑ 24.8% vs last month</span>
-              </div>
-              <div className="mini-bars">
-                {[30,42,35,55,48,70,62,82,76,94].map((h,i) => <div key={i} className={`bar ${i > 6 ? "active" : ""}`} style={{height:`${h}%`}} />)}
-              </div>
+            <div className="heroMetric">
+              <small>Revenue currently at risk</small>
+              <strong>KES 0</strong>
+              <div className="up">✓ No unresolved revenue leaks</div>
             </div>
           </section>
 
-          <section className="stats">
-            <div className="stat">
-              <div className="stat-top"><span className="card-title">New leads</span><span className="stat-icon">◈</span></div>
-              <div className="stat-value">128</div>
-              <div className="stat-label"><span className="trend">↑ 18%</span> this month</div>
-            </div>
-            <div className="stat">
-              <div className="stat-top"><span className="card-title">Open conversations</span><span className="stat-icon">◌</span></div>
-              <div className="stat-value">43</div>
-              <div className="stat-label"><span className="trend">↓ 12%</span> response backlog</div>
-            </div>
-            <div className="stat">
-              <div className="stat-top"><span className="card-title">Conversion rate</span><span className="stat-icon">↗</span></div>
-              <div className="stat-value">24.6%</div>
-              <div className="stat-label"><span className="trend">↑ 4.2%</span> this month</div>
-            </div>
-            <div className="stat">
-              <div className="stat-top"><span className="card-title">AI replies sent</span><span className="stat-icon">✦</span></div>
-              <div className="stat-value">1,842</div>
-              <div className="stat-label"><span className="trend">98.4%</span> successfully handled</div>
-            </div>
-          </section>
+          <div className="sectionHead"><h2>Business overview</h2><span>Live workspace</span></div>
 
-          <section className="grid">
-            <div className="card">
-              <div className="card-head">
-                <div><h2>Recent conversations</h2><span>Latest customer activity</span></div>
-                <Link className="view" href="/dashboard/conversations">View all</Link>
-              </div>
-              {conversations.map((c) => (
+          <div className="cards">
+            <div className="card"><div className="cardLabel">Conversations</div><div className="cardValue">0</div><div className="cardChange">Connect a channel to begin</div></div>
+            <div className="card"><div className="cardLabel">New leads</div><div className="cardValue">0</div><div className="cardChange">No leads yet</div></div>
+            <div className="card"><div className="cardLabel">Revenue recovered</div><div className="cardValue">KES 0</div><div className="cardChange">Waiting for activity</div></div>
+            <div className="card"><div className="cardLabel">AI response rate</div><div className="cardValue">—</div><div className="cardChange">Connect your first channel</div></div>
+          </div>
+
+          <div className="sectionHead"><h2>Connect Lewy to your business</h2><span>Start here</span></div>
+
+          <div className="lower">
+            <div className="panel">
+              <div className="panelTitle">Channels & integrations</div>
+              {channels.slice(0,4).map(c => (
                 <div className="conversation" key={c.name}>
-                  <div className="person-avatar">{c.avatar}</div>
-                  <div className="conv-main">
-                    <div className="conv-name">{c.name} {c.hot && <span className="hot">HOT LEAD</span>}</div>
-                    <div className="conv-text">{c.text}</div>
-                  </div>
-                  <div className="conv-meta"><div>{c.time}</div><div>{c.channel}</div></div>
+                  <div className="person">{c.icon}</div>
+                  <div className="convMain"><strong>{c.name}</strong><p>{c.desc}</p></div>
+                  <Link href="/dashboard/channels" className="badge">{c.connected ? "Manage" : "Connect"}</Link>
                 </div>
               ))}
+              <Link href="/dashboard/channels" style={{display:"block",marginTop:12,textAlign:"center",padding:11,borderRadius:9,background:"#f5f3ff",color:"#6d28d9",fontSize:11,fontWeight:800}}>View all channels →</Link>
             </div>
 
-            <div className="card">
-              <div className="card-head">
-                <div><h2>Hot leads</h2><span>Highest conversion potential</span></div>
-                <Link className="view" href="/dashboard/leads">View all</Link>
+            <div className="panel">
+              <div className="panelTitle">Quick setup</div>
+              <div className="quick">
+                <Link href="/dashboard/channels">⌁<br/><span style={{display:"block",marginTop:7}}>Connect channels</span></Link>
+                <Link href="/dashboard/products">▣<br/><span style={{display:"block",marginTop:7}}>Add products</span></Link>
+                <Link href="/dashboard/calendar">□<br/><span style={{display:"block",marginTop:7}}>Set calendar</span></Link>
+                <Link href="/dashboard/settings">⚙<br/><span style={{display:"block",marginTop:7}}>Business settings</span></Link>
               </div>
-              {leads.map((lead) => (
-                <div className="lead-row" key={lead.name}>
-                  <div className="lead-top"><span className="lead-name">{lead.name}</span><span className="lead-value">{lead.value}</span></div>
-                  <div className="lead-bottom">
-                    <span className="source">{lead.source}</span>
-                    <span className="score">{lead.score}%</span>
-                    <div className="score-track"><div className="score-fill" style={{width:`${lead.score}%`}} /></div>
-                  </div>
-                </div>
-              ))}
             </div>
-          </section>
-
-          <section className="lower">
-            <div className="card">
-              <div className="card-head"><div><h2>Lewy AI activity</h2><span>What your AI is doing</span></div><Link className="view" href="/dashboard/conversations">Inbox</Link></div>
-              <div className="activity"><span className="activity-dot"/><div><strong>Lead qualified automatically</strong><p>Brian Otieno was marked as a HOT lead.</p></div><time>2m</time></div>
-              <div className="activity"><span className="activity-dot"/><div><strong>Follow-up sent</strong><p>Lewy followed up with 3 inactive leads.</p></div><time>14m</time></div>
-              <div className="activity"><span className="activity-dot"/><div><strong>Appointment booked</strong><p>Mercy Wanjiku booked a consultation.</p></div><time>28m</time></div>
-            </div>
-
-            <div className="card">
-              <div className="card-head"><div><h2>Upcoming appointments</h2><span>Next scheduled meetings</span></div><Link className="view" href="/dashboard/calendar">Calendar</Link></div>
-              <div className="appointment"><div className="date-box"><b>14</b><small>Sep</small></div><div><strong>Product consultation</strong><span>Brian Otieno · 10:00 AM</span></div></div>
-              <div className="appointment"><div className="date-box"><b>15</b><small>Sep</small></div><div><strong>Business strategy call</strong><span>Mercy Wanjiku · 2:30 PM</span></div></div>
-              <div className="appointment"><div className="date-box"><b>16</b><small>Sep</small></div><div><strong>Demo & onboarding</strong><span>Daniel Kiptoo · 11:00 AM</span></div></div>
-            </div>
-
-            <div className="card">
-              <div className="card-head"><div><h2>Follow-up queue</h2><span>Leads waiting for action</span></div><Link className="view" href="/dashboard/followups">View all</Link></div>
-              <div className="follow"><div className="follow-icon">↗</div><div className="follow-main"><strong>Brian Otieno</strong><span>Send proposal</span></div><span className="follow-time">Now</span></div>
-              <div className="follow"><div className="follow-icon">◌</div><div className="follow-main"><strong>Sarah Njeri</strong><span>Check interest</span></div><span className="follow-time">1h</span></div>
-              <div className="follow"><div className="follow-icon">◌</div><div className="follow-main"><strong>Daniel Kiptoo</strong><span>Pricing follow-up</span></div><span className="follow-time">3h</span></div>
-            </div>
-          </section>
+          </div>
         </div>
-      </section>
-    </main>
+      </main>
+    </div>
   );
 }
